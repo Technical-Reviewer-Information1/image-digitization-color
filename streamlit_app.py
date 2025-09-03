@@ -27,9 +27,13 @@ st.caption("スライダーを右に動かして拡大してください。拡�
 
 def create_raster_image(shape_type, display_size=300, zoom_factor=1):
     """ラスタ形式の画像を生成"""
-    # 非常に小さな基本画像サイズでジャギーを劇的に表現
-    base_size = 24  # 極小サイズで明確なジャギー効果
-    img = Image.new('RGBA', (base_size, base_size), (255, 255, 255, 0))
+    # 基本画像サイズを調整：1倍時は滑らか、拡大時にジャギーが目立つように
+    if zoom_factor == 1:
+        base_size = 100  # 1倍時は十分なサイズで滑らか
+    else:
+        base_size = max(40, 100 - (zoom_factor - 1) * 8)  # 拡大時は元画像を小さくしてジャギー強調
+    
+    img = Image.new('RGBA', (int(base_size), int(base_size)), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
     
     center = base_size // 2
@@ -50,20 +54,23 @@ def create_raster_image(shape_type, display_size=300, zoom_factor=1):
                  (center+radius, center+radius)]
         draw.polygon(points, fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=line_width)
     
-    # 拡大処理（ニアレストネイバー法でピクセルが非常に粗くなる）
-    # zoom_factorによる段階的な拡大で劇的な変化を演出
-    if zoom_factor <= 3:
-        zoom_size = base_size * zoom_factor
+    # 拡大処理の調整
+    if zoom_factor == 1:
+        # 1倍時はそのままの高品質を維持
+        final_size = base_size
     else:
-        # より大きな拡大率で劇的なジャギー効果
-        zoom_size = base_size * zoom_factor * 1.5
+        # 拡大時は段階的にサイズを調整してジャギーを強調
+        final_size = 300 + (zoom_factor - 1) * 50  # 表示サイズに合わせて拡大
     
-    # ニアレストネイバー法でピクセル感を強調
-    img = img.resize((int(zoom_size), int(zoom_size)), Image.NEAREST)
+    # 1倍以外はニアレストネイバー法でピクセル感を強調
+    if zoom_factor == 1:
+        img = img.resize((int(final_size), int(final_size)), Image.LANCZOS)  # 高品質リサイズ
+    else:
+        img = img.resize((int(final_size), int(final_size)), Image.NEAREST)  # ピクセル感強調
     
     return img
 
-def create_vector_visualization(shape_type, display_size=300, zoom_factor=1):
+def create_vector_visualization(shape_type, zoom_factor=1):
     """ベクタ形式の図形をPlotlyで可視化"""
     fig = go.Figure()
     
@@ -125,21 +132,27 @@ with col1:
     raster_img = create_raster_image(shape_type, 300, zoom_factor)
     
     # 画像情報を表示
-    base_size = 24
-    if zoom_factor <= 3:
-        actual_size = base_size * zoom_factor
+    if zoom_factor == 1:
+        base_size = 100
+        actual_size = base_size
     else:
-        actual_size = int(base_size * zoom_factor * 1.5)
+        base_size = max(40, 100 - (zoom_factor - 1) * 8)
+        actual_size = int(300 + (zoom_factor - 1) * 50)
     
-    pixel_count = actual_size * actual_size
-    st.write(f"**元画像サイズ:** {base_size}×{base_size}px")
-    st.write(f"**表示サイズ:** {actual_size}×{actual_size}px ({pixel_count:,}ピクセル)")
+    pixel_count = base_size * base_size
+    display_pixel_count = actual_size * actual_size
+    
+    st.write(f"**元画像サイズ:** {base_size}×{base_size}px ({pixel_count:,}ピクセル)")
+    if zoom_factor > 1:
+        st.write(f"**表示サイズ:** {actual_size}×{actual_size}px ({display_pixel_count:,}ピクセル)")
     
     # 拡大倍率に応じて表示サイズも変更
     display_width = min(350 + (zoom_factor - 1) * 30, 600)  # 最大600pxまで表示サイズを拡大
     st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=int(display_width), use_container_width=False)
     
-    if zoom_factor > 5:
+    if zoom_factor == 1:
+        st.success("✨ 1倍表示：滑らかで高品質な画像です")
+    elif zoom_factor > 5:
         st.error("🚨 極端なジャギー（階段状のギザギザ）が発生！個々のピクセルがはっきり見えます")
     elif zoom_factor > 3:
         st.warning("⚠️ 明確なジャギー（ギザギザ）が発生しています。ピクセルの境界が見えます")
@@ -150,7 +163,7 @@ with col2:
     st.subheader("ベクタ形式")
     st.write(f"**データ形式:** 数式・座標データ（解像度に依存しない）")
     
-    vector_fig = create_vector_visualization(shape_type, 300, zoom_factor)
+    vector_fig = create_vector_visualization(shape_type, zoom_factor)
     st.plotly_chart(vector_fig, use_container_width=False)
     
     if zoom_factor > 5:
