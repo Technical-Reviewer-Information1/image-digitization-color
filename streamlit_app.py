@@ -118,7 +118,7 @@ with col1:
     st.write(f"**画像サイズ:** {img_size}×{img_size}px ({pixel_count:,}ピクセル)")
     
     # 表示サイズを固定して、画像の拡大効果を見せる
-    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=300, use_column_width=False)
+    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=300, use_container_width=False)
     
     if zoom_factor > 3:
         st.warning("⚠️ ピクセルが粗くなり、ジャギー（ギザギザ）が発生しています")
