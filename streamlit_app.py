@@ -22,12 +22,13 @@ st.write("同じ図形をラスタ形式（ビットマップ）とベクタ形�
 shape_type = st.selectbox("図形を選択してください", ["円", "四角形", "三角形"])
 
 # 拡大倍率スライダー
-zoom_factor = st.slider("拡大倍率", min_value=1, max_value=10, value=1, step=1)
+zoom_factor = st.slider("拡大倍率", min_value=1, max_value=15, value=1, step=1)
+st.caption("スライダーを右に動かして拡大してください。拡大倍率が上がるほど、ラスタとベクタの違いが明確になります。")
 
 def create_raster_image(shape_type, display_size=300, zoom_factor=1):
     """ラスタ形式の画像を生成"""
-    # 基本画像サイズをさらに小さくして、拡大時のジャギーを明確にする
-    base_size = 40  # より小さな基本サイズで劇的なジャギー効果
+    # 非常に小さな基本画像サイズでジャギーを劇的に表現
+    base_size = 24  # 極小サイズで明確なジャギー効果
     img = Image.new('RGBA', (base_size, base_size), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
     
@@ -49,10 +50,16 @@ def create_raster_image(shape_type, display_size=300, zoom_factor=1):
                  (center+radius, center+radius)]
         draw.polygon(points, fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=line_width)
     
-    # 拡大処理（ニアレストネイバー法でピクセルが粗くなる）
-    # zoom_factorに応じて段階的に拡大
-    zoom_size = base_size + (zoom_factor - 1) * 30  # より大きな変化
-    img = img.resize((zoom_size, zoom_size), Image.NEAREST)
+    # 拡大処理（ニアレストネイバー法でピクセルが非常に粗くなる）
+    # zoom_factorによる段階的な拡大で劇的な変化を演出
+    if zoom_factor <= 3:
+        zoom_size = base_size * zoom_factor
+    else:
+        # より大きな拡大率で劇的なジャギー効果
+        zoom_size = base_size * zoom_factor * 1.5
+    
+    # ニアレストネイバー法でピクセル感を強調
+    img = img.resize((int(zoom_size), int(zoom_size)), Image.NEAREST)
     
     return img
 
@@ -113,15 +120,23 @@ with col1:
     raster_img = create_raster_image(shape_type, 300, zoom_factor)
     
     # 画像情報を表示
-    img_size = 40 + (zoom_factor - 1) * 30
-    pixel_count = img_size * img_size
-    st.write(f"**画像サイズ:** {img_size}×{img_size}px ({pixel_count:,}ピクセル)")
+    base_size = 24
+    if zoom_factor <= 3:
+        actual_size = base_size * zoom_factor
+    else:
+        actual_size = int(base_size * zoom_factor * 1.5)
+    
+    pixel_count = actual_size * actual_size
+    st.write(f"**元画像サイズ:** {base_size}×{base_size}px")
+    st.write(f"**表示サイズ:** {actual_size}×{actual_size}px ({pixel_count:,}ピクセル)")
     
     # 表示サイズを固定して、画像の拡大効果を見せる
-    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=300, use_container_width=False)
+    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=350, use_container_width=False)
     
-    if zoom_factor > 3:
-        st.warning("⚠️ ピクセルが粗くなり、ジャギー（ギザギザ）が発生しています")
+    if zoom_factor > 5:
+        st.error("🚨 極端なジャギー（階段状のギザギザ）が発生！個々のピクセルがはっきり見えます")
+    elif zoom_factor > 3:
+        st.warning("⚠️ 明確なジャギー（ギザギザ）が発生しています。ピクセルの境界が見えます")
     elif zoom_factor > 1:
         st.info("🔍 拡大によってピクセルが見えてきました")
 
@@ -132,7 +147,9 @@ with col2:
     vector_fig = create_vector_visualization(shape_type, 300, zoom_factor)
     st.plotly_chart(vector_fig, use_container_width=False)
     
-    if zoom_factor > 3:
+    if zoom_factor > 5:
+        st.success("✨ どれだけ拡大しても完全に滑らか！数式で定義されているため劣化しません")
+    elif zoom_factor > 3:
         st.success("✅ 拡大しても滑らかな曲線・直線が維持されています")
     elif zoom_factor > 1:
         st.info("📏 拡大されても品質が保たれています")
@@ -142,8 +159,32 @@ if zoom_factor == 1:
     st.info("スライダーを動かして拡大してみてください。拡大倍率が上がると違いがはっきりと見えてきます。")
 elif zoom_factor <= 3:
     st.info("少しずつ違いが見えてきました。さらに拡大してみてください。")
+elif zoom_factor <= 7:
+    st.success("ラスタ形式とベクタ形式の違いが明確に見えています！")
 else:
-    st.info("ラスタ形式とベクタ形式の違いが明確に見えています！")
+    st.success("🎯 最大拡大！ラスタのピクセル感とベクタの滑らかさの違いが一目瞭然です！")
+
+# ジャギーについての詳細説明を追加
+if zoom_factor > 5:
+    st.markdown("---")
+    st.subheader("🔍 ジャギー（Jaggies）とは？")
+    st.markdown("""
+    **ジャギー（階段状のギザギザ）**が発生する理由：
+    - 📐 **ラスタ画像**：小さな四角いピクセルの集合体
+    - 🔄 **拡大処理**：既存のピクセルをそのまま大きくするだけ
+    - ⚡ **曲線の限界**：直線的なピクセルでは滑らかな曲線を完璧に表現できない
+    
+    **ベクタ画像が滑らか**な理由：
+    - 📊 **数式ベース**：円なら「x² + y² = r²」といった数学的定義
+    - 🎯 **任意解像度**：どんなサイズでも数式から新しく描画
+    - ✨ **完璧な曲線**：数学的に正確な曲線を任意の精度で描画可能
+    """)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.info("**ラスタが適している用途**\n写真、複雑なテクスチャ、グラデーション")
+    with col2:
+        st.info("**ベクタが適している用途**\nロゴ、アイコン、図形、文字")
 
 st.divider()
 
