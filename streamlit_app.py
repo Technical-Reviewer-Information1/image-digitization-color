@@ -24,39 +24,48 @@ shape_type = st.selectbox("図形を選択してください", ["円", "四角�
 # 拡大倍率スライダー
 zoom_factor = st.slider("拡大倍率", min_value=1, max_value=10, value=1, step=1)
 
-def create_raster_image(shape_type, size=200, zoom_factor=1):
+def create_raster_image(shape_type, display_size=300, zoom_factor=1):
     """ラスタ形式の画像を生成"""
-    img_size = size // zoom_factor  # 拡大する際は小さい画像から始める
-    img = Image.new('RGBA', (img_size, img_size), (255, 255, 255, 0))
+    # 基本画像サイズをさらに小さくして、拡大時のジャギーを明確にする
+    base_size = 40  # より小さな基本サイズで劇的なジャギー効果
+    img = Image.new('RGBA', (base_size, base_size), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
     
-    center = img_size // 2
-    radius = img_size // 4
+    center = base_size // 2
+    radius = base_size // 3
+    
+    # 線の太さを固定
+    line_width = 1
     
     if shape_type == "円":
         draw.ellipse([center-radius, center-radius, center+radius, center+radius], 
-                    fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=2)
+                    fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=line_width)
     elif shape_type == "四角形":
         draw.rectangle([center-radius, center-radius, center+radius, center+radius], 
-                      fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=2)
+                      fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=line_width)
     elif shape_type == "三角形":
         points = [(center, center-radius), 
                  (center-radius, center+radius), 
                  (center+radius, center+radius)]
-        draw.polygon(points, fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=2)
+        draw.polygon(points, fill=(0, 100, 255, 255), outline=(0, 50, 200, 255), width=line_width)
     
-    # 拡大処理（ピクセルが粗くなる）
-    if zoom_factor > 1:
-        img = img.resize((size, size), Image.NEAREST)
+    # 拡大処理（ニアレストネイバー法でピクセルが粗くなる）
+    # zoom_factorに応じて段階的に拡大
+    zoom_size = base_size + (zoom_factor - 1) * 30  # より大きな変化
+    img = img.resize((zoom_size, zoom_size), Image.NEAREST)
     
     return img
 
-def create_vector_visualization(shape_type, size=200, zoom_factor=1):
+def create_vector_visualization(shape_type, display_size=300, zoom_factor=1):
     """ベクタ形式の図形をPlotlyで可視化"""
     fig = go.Figure()
     
     center = 0
-    radius = 1 / zoom_factor  # ズーム時は相対的に小さくして、表示領域で拡大効果を演出
+    # 拡大時は図形を大きくして、拡大効果を演出
+    radius = 0.3 * zoom_factor
+    
+    # 線の太さも拡大倍率に応じて調整
+    line_width = 2 * zoom_factor
     
     if shape_type == "円":
         theta = np.linspace(0, 2*np.pi, 100)
@@ -64,33 +73,33 @@ def create_vector_visualization(shape_type, size=200, zoom_factor=1):
         y = center + radius * np.sin(theta)
         fig.add_trace(go.Scatter(x=x, y=y, fill="toself", 
                                 fillcolor="rgba(0, 100, 255, 0.7)",
-                                line=dict(color="rgba(0, 50, 200, 1)", width=3),
+                                line=dict(color="rgba(0, 50, 200, 1)", width=line_width),
                                 showlegend=False, hoverinfo='none'))
     elif shape_type == "四角形":
         x = [center-radius, center+radius, center+radius, center-radius, center-radius]
         y = [center-radius, center-radius, center+radius, center+radius, center-radius]
         fig.add_trace(go.Scatter(x=x, y=y, fill="toself", 
                                 fillcolor="rgba(0, 100, 255, 0.7)",
-                                line=dict(color="rgba(0, 50, 200, 1)", width=3),
+                                line=dict(color="rgba(0, 50, 200, 1)", width=line_width),
                                 showlegend=False, hoverinfo='none'))
     elif shape_type == "三角形":
         x = [center, center-radius, center+radius, center]
         y = [center-radius, center+radius, center+radius, center-radius]
         fig.add_trace(go.Scatter(x=x, y=y, fill="toself", 
                                 fillcolor="rgba(0, 100, 255, 0.7)",
-                                line=dict(color="rgba(0, 50, 200, 1)", width=3),
+                                line=dict(color="rgba(0, 50, 200, 1)", width=line_width),
                                 showlegend=False, hoverinfo='none'))
     
-    # 拡大に応じて表示範囲を調整
-    axis_range = 1.5 / zoom_factor
+    # 表示範囲は固定して、図形が拡大される様子を表現
+    max_radius = 3  # 最大拡大時の表示範囲
     fig.update_layout(
-        xaxis=dict(range=[-axis_range, axis_range], showgrid=False, showticklabels=False, zeroline=False),
-        yaxis=dict(range=[-axis_range, axis_range], showgrid=False, showticklabels=False, zeroline=False, scaleanchor="x"),
+        xaxis=dict(range=[-max_radius, max_radius], showgrid=False, showticklabels=False, zeroline=False),
+        yaxis=dict(range=[-max_radius, max_radius], showgrid=False, showticklabels=False, zeroline=False, scaleanchor="x"),
         showlegend=False,
         plot_bgcolor='white',
         paper_bgcolor='white',
-        width=size,
-        height=size,
+        width=display_size,
+        height=display_size,
         margin=dict(l=0, r=0, t=0, b=0)
     )
     
@@ -102,16 +111,31 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("ラスタ形式（ビットマップ）")
     raster_img = create_raster_image(shape_type, 300, zoom_factor)
-    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=300)
+    
+    # 画像情報を表示
+    img_size = 40 + (zoom_factor - 1) * 30
+    pixel_count = img_size * img_size
+    st.write(f"**画像サイズ:** {img_size}×{img_size}px ({pixel_count:,}ピクセル)")
+    
+    # 表示サイズを固定して、画像の拡大効果を見せる
+    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=300, use_column_width=False)
+    
     if zoom_factor > 3:
         st.warning("⚠️ ピクセルが粗くなり、ジャギー（ギザギザ）が発生しています")
+    elif zoom_factor > 1:
+        st.info("🔍 拡大によってピクセルが見えてきました")
 
 with col2:
     st.subheader("ベクタ形式")
+    st.write(f"**データ形式:** 数式・座標データ（解像度に依存しない）")
+    
     vector_fig = create_vector_visualization(shape_type, 300, zoom_factor)
     st.plotly_chart(vector_fig, use_container_width=False)
+    
     if zoom_factor > 3:
         st.success("✅ 拡大しても滑らかな曲線・直線が維持されています")
+    elif zoom_factor > 1:
+        st.info("📏 拡大されても品質が保たれています")
 
 # 拡大倍率による違いの説明
 if zoom_factor == 1:
