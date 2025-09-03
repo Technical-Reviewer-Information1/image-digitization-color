@@ -75,8 +75,9 @@ def create_vector_visualization(shape_type, zoom_factor=1):
     fig = go.Figure()
     
     center = 0
-    # 拡大時は図形を大きくして、拡大効果を演出
-    radius = 0.3 * zoom_factor
+    # ラスタとサイズを合わせるため、固定の基本半径を使用
+    base_radius = 1.0  # 基本半径
+    radius = base_radius  # 拡大倍率に関係なく図形サイズは一定
     
     # 線の太さも拡大倍率に応じて調整（適度に）
     line_width = max(2, min(2 * zoom_factor, 8))  # 線の太さを制限
@@ -104,16 +105,16 @@ def create_vector_visualization(shape_type, zoom_factor=1):
                                 line=dict(color="rgba(0, 50, 200, 1)", width=line_width),
                                 showlegend=False, hoverinfo='none'))
     
-    # 表示範囲は固定して、図形が拡大される様子を表現
-    max_radius = 3  # 最大拡大時の表示範囲
+    # 表示範囲を固定して図形サイズを統一
+    view_range = 2.0  # 表示範囲を固定
     
     # 拡大倍率に応じてプロット自体のサイズも調整
     plot_width = min(350 + (zoom_factor - 1) * 30, 600)
     plot_height = plot_width
     
     fig.update_layout(
-        xaxis=dict(range=[-max_radius, max_radius], showgrid=False, showticklabels=False, zeroline=False),
-        yaxis=dict(range=[-max_radius, max_radius], showgrid=False, showticklabels=False, zeroline=False, scaleanchor="x"),
+        xaxis=dict(range=[-view_range, view_range], showgrid=False, showticklabels=False, zeroline=False),
+        yaxis=dict(range=[-view_range, view_range], showgrid=False, showticklabels=False, zeroline=False, scaleanchor="x"),
         showlegend=False,
         plot_bgcolor='white',
         paper_bgcolor='white',
