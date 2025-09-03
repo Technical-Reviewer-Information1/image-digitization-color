@@ -71,8 +71,8 @@ def create_vector_visualization(shape_type, display_size=300, zoom_factor=1):
     # 拡大時は図形を大きくして、拡大効果を演出
     radius = 0.3 * zoom_factor
     
-    # 線の太さも拡大倍率に応じて調整
-    line_width = 2 * zoom_factor
+    # 線の太さも拡大倍率に応じて調整（適度に）
+    line_width = max(2, min(2 * zoom_factor, 8))  # 線の太さを制限
     
     if shape_type == "円":
         theta = np.linspace(0, 2*np.pi, 100)
@@ -99,14 +99,19 @@ def create_vector_visualization(shape_type, display_size=300, zoom_factor=1):
     
     # 表示範囲は固定して、図形が拡大される様子を表現
     max_radius = 3  # 最大拡大時の表示範囲
+    
+    # 拡大倍率に応じてプロット自体のサイズも調整
+    plot_width = min(350 + (zoom_factor - 1) * 30, 600)
+    plot_height = plot_width
+    
     fig.update_layout(
         xaxis=dict(range=[-max_radius, max_radius], showgrid=False, showticklabels=False, zeroline=False),
         yaxis=dict(range=[-max_radius, max_radius], showgrid=False, showticklabels=False, zeroline=False, scaleanchor="x"),
         showlegend=False,
         plot_bgcolor='white',
         paper_bgcolor='white',
-        width=display_size,
-        height=display_size,
+        width=plot_width,
+        height=plot_height,
         margin=dict(l=0, r=0, t=0, b=0)
     )
     
@@ -130,8 +135,9 @@ with col1:
     st.write(f"**元画像サイズ:** {base_size}×{base_size}px")
     st.write(f"**表示サイズ:** {actual_size}×{actual_size}px ({pixel_count:,}ピクセル)")
     
-    # 表示サイズを固定して、画像の拡大効果を見せる
-    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=350, use_container_width=False)
+    # 拡大倍率に応じて表示サイズも変更
+    display_width = min(350 + (zoom_factor - 1) * 30, 600)  # 最大600pxまで表示サイズを拡大
+    st.image(raster_img, caption=f"拡大倍率: {zoom_factor}x", width=int(display_width), use_container_width=False)
     
     if zoom_factor > 5:
         st.error("🚨 極端なジャギー（階段状のギザギザ）が発生！個々のピクセルがはっきり見えます")
