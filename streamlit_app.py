@@ -8,7 +8,7 @@ import base64
 
 st.set_page_config(page_title="画像のデジタル表現②画像や色の表現", layout="wide")
 
-st.title("画像のデジタル表現②画像や色の表現")
+st.title("画像のデジタル表現②画像や色の表現（pp.161-163）")
 st.caption("Created by Dit-Lab.(Daiki ITO)")
 st.caption("Supported by Tomoaki ATSUMI")
 
