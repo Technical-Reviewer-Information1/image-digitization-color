@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>画像のデジタル表現②　画像や色の表現方法｜情報Ⅰ共通テスト対策問題集</title>
+<meta name="description" content="光の三原色を実際に混ぜ、カラーコードを読み、ラスタ形式とベクタ形式を拡大して見比べます。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 fill=%22%2315181c%22/%3E%3Ctext x=%2216%22 y=%2222%22 font-size=%2218%22 font-family=%22monospace%22 fill=%22%23fff%22 text-anchor=%22middle%22%3E01%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="inner">
+    <span class="eyebrow">第 5 章　デジタル　5-10</span>
+    <h1>画像のデジタル表現②　画像や色の表現方法（pp.161-162）</h1>
+    <p class="lead">光の三原色を実際に混ぜ、カラーコードを読み、ラスタ形式とベクタ形式を拡大して見比べます。</p>
+    <p class="credit">Created by Dit-Lab.(Daiki ITO)　/　Supported by Tomoaki ATSUMI</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="step" id="step1">
+    <h2><span class="no">STEP 1</span>光の三原色を混ぜる</h2>
+    <p class="desc">ディスプレイは<strong>加法混色</strong>（光を重ねると明るくなる）、絵の具やプリンタは<strong>減法混色</strong>（重ねると暗くなる）です。</p>
+    <div class="panel">
+      <div class="grid c2">
+        <div>
+          <label class="fld" for="rIn">赤 R：<span class="mono" id="rV">255</span>（16進法 <span class="mono" id="rH">FF</span>）</label>
+          <input type="range" id="rIn" min="0" max="255" step="1" value="255">
+          <label class="fld" for="gIn" style="margin-top:10px">緑 G：<span class="mono" id="gV">0</span>（16進法 <span class="mono" id="gH">00</span>）</label>
+          <input type="range" id="gIn" min="0" max="255" step="1" value="0">
+          <label class="fld" for="bIn" style="margin-top:10px">青 B：<span class="mono" id="bV">0</span>（16進法 <span class="mono" id="bH">00</span>）</label>
+          <input type="range" id="bIn" min="0" max="255" step="1" value="0">
+          <div class="btn-row" style="margin-top:12px;flex-wrap:wrap">
+            <button class="btn" data-hex="000000">000000</button>
+            <button class="btn" data-hex="FFFFFF">FFFFFF</button>
+            <button class="btn" data-hex="FF0000">FF0000</button>
+            <button class="btn" data-hex="00FFFF">00FFFF</button>
+            <button class="btn" data-hex="FFFF00">FFFF00</button>
+          </div>
+          <div class="swatch" id="swatch" style="margin-top:12px"></div>
+          <div class="note" id="colNote" style="margin-top:10px"></div>
+        </div>
+        <div>
+          <div class="mixwrap">
+            <figure>
+              <div class="mixbox add"><i class="a" style="background:#f00"></i><i class="b" style="background:#0f0"></i><i class="c" style="background:#00f"></i></div>
+              <figcaption><strong>加法混色</strong><br>赤・緑・青（光の三原色）<br>重ねるほど明るく、3つで白</figcaption>
+            </figure>
+            <figure>
+              <div class="mixbox sub"><i class="a" style="background:#0ff"></i><i class="b" style="background:#f0f"></i><i class="c" style="background:#ff0"></i></div>
+              <figcaption><strong>減法混色</strong><br>シアン・マゼンタ・イエロー（色の三原色）<br>重ねるほど暗く、3つで黒</figcaption>
+            </figure>
+          </div>
+          <div class="note info" style="margin-top:12px">スマートフォンやテレビの画面は<strong>加法混色</strong>。絵の具やプリンタのインクは<strong>減法混色</strong>です。混同しやすいので、どちらが「光」かで見分けましょう。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" id="step2">
+    <h2><span class="no">STEP 2</span>カラーコードを読む（問3）</h2>
+    <p class="desc">カラーコードは6桁の16進法。先頭から2桁ずつ R・G・B の強さ（00〜FF ＝ 0〜255）を表します。</p>
+    <div class="panel">
+      <div class="btn-row" style="align-items:flex-end;flex-wrap:wrap;gap:10px">
+        <label class="fld" for="hexIn">カラーコード<br>
+          <input type="text" id="hexIn" value="FF0000" class="mono" maxlength="7" style="width:8em"></label>
+      </div>
+      <div class="tbl-scroll" style="margin-top:12px"><table class="tbl" id="hexTable"></table></div>
+      <div class="note" id="hexNote" style="margin-top:10px"></div>
+      <hr class="sep">
+      <p class="qhead">本文の空欄【エ】・【オ】</p>
+      <div class="panel" id="q3Box" style="border:0;padding:0;background:none"></div>
+      <div class="note" id="q3Note" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="step3">
+    <h2><span class="no">STEP 3</span>1色あたりのビット数と色数</h2>
+    <p class="desc">R・G・B それぞれに割り当てるビット数を変えると、表せる色数と見え方が変わります。</p>
+    <div class="panel">
+      <div class="grid c2">
+        <div>
+          <label class="fld" for="bpc">1色あたり：<span class="mono" id="bpcV">8</span> ビット
+            （1画素 <span class="mono" id="bppV">24</span> ビット）</label>
+          <input type="range" id="bpc" min="1" max="8" step="1" value="8">
+          <div class="metrics" style="margin-top:12px">
+            <div class="metric"><div class="k">表せる色数</div><div class="v" id="colorCount" style="font-size:1.3rem">—</div></div>
+            <div class="metric"><div class="k">呼び方</div><div class="v" id="colorName" style="font-size:1.1rem">—</div></div>
+          </div>
+          <div class="note" id="bpcNote" style="margin-top:12px"></div>
+        </div>
+        <div>
+          <div id="posterBox"></div>
+          <p class="small" style="color:var(--muted);text-align:center;margin-top:6px">同じ画像を、各色のビット数だけ変えて表示しています</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" id="step4">
+    <h2><span class="no">STEP 4</span>ラスタ形式とベクタ形式を拡大する</h2>
+    <p class="desc">同じ図形でも、記録のしかたが違うと拡大したときの見え方が変わります。</p>
+    <div class="panel">
+      <label class="fld" for="zoom">拡大率：<span class="mono" id="zoomV">1</span> 倍</label>
+      <input type="range" id="zoom" min="1" max="10" step="1" value="1">
+      <div class="zoompair" style="margin-top:12px">
+        <figure><div id="rasterBox"></div><figcaption><strong>ラスタ形式</strong><br>画素を並べて記録<br>拡大すると<strong>ジャギー</strong>が出る</figcaption></figure>
+        <figure><div id="vectorBox"></div><figcaption><strong>ベクタ形式</strong><br>点の座標と線の情報で記録<br>拡大しても<strong>なめらか</strong></figcaption></figure>
+      </div>
+      <div class="tbl-scroll" style="margin-top:12px"><table class="tbl" id="rvTable"></table></div>
+      <div class="note info" id="rvNote" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="step5">
+    <h2><span class="no">STEP 5</span>データ量をそろえて考える（問2）</h2>
+    <p class="desc">2つの画像のデータ量が等しいとき、1ピクセルあたりのビット数を逆算します。</p>
+    <div class="panel">
+      <div class="grid c2">
+        <div>
+          <p class="qhead" style="margin:0 0 8px">画像① RGBカラー</p>
+          <label class="fld" for="w1">横 × 縦（ピクセル）</label>
+          <div class="btn-row">
+            <input type="number" id="w1" value="600" min="1" class="mono" style="width:8em">
+            <input type="number" id="h1" value="600" min="1" class="mono" style="width:8em">
+          </div>
+          <p class="qhead" style="margin:16px 0 8px">画像② グレースケール</p>
+          <label class="fld" for="w2">横 × 縦（ピクセル）</label>
+          <div class="btn-row">
+            <input type="number" id="w2" value="1800" min="1" class="mono" style="width:8em">
+            <input type="number" id="h2" value="1200" min="1" class="mono" style="width:8em">
+          </div>
+          <label class="fld" for="g2" style="margin-top:12px">画像②の階調</label>
+          <select class="sel" id="g2">
+            <option value="8" selected>256階調（8ビット）</option>
+            <option value="4">16階調（4ビット）</option>
+            <option value="1">2階調（1ビット）</option>
+          </select>
+        </div>
+        <div>
+          <div class="eqbox" id="eqBox">—</div>
+          <div class="metrics" style="margin-top:12px">
+            <div class="metric"><div class="k">画像①の1ピクセルあたり</div><div class="v" id="ansBits" style="font-size:1.5rem">—</div></div>
+          </div>
+          <div class="note" id="eqNote" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" id="step6">
+    <h2><span class="no">STEP 6</span>a〜e の記述を判定する（問1）</h2>
+    <div class="panel">
+      <div class="abcde" id="jBox"></div>
+      <div class="note" id="jNote" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="glossary">
+    <h2><span class="no">用語</span>この節で出てくることば</h2>
+    <div class="panel"><div id="glossBox"></div></div>
+  </section>
+
+  <section class="step" id="wrap">
+    <h2><span class="no">まとめ</span>おさえておきたいこと</h2>
+    <div class="panel">
+      <ul class="bullets">
+        <li><strong>加法混色</strong>＝赤・緑・青の光。重ねるほど明るく、3つそろうと白。ディスプレイで使う。</li>
+        <li><strong>減法混色</strong>＝シアン・マゼンタ・イエロー。重ねるほど暗く、3つそろうと黒。絵の具やプリンタで使う。</li>
+        <li>カラーコードは6桁の16進法で <span class="mono">RRGGBB</span>。<span class="mono">FF0000</span>は赤、<span class="mono">00FFFF</span>は水色。</li>
+        <li>RGB各色8ビットなら 8×3＝24ビット。これを<strong>24ビットフルカラー</strong>といい、2<sup>24</sup>＝16,777,216色。</li>
+        <li><strong>ラスタ形式</strong>は画素の集まり。写真向きだが拡大するとジャギーが出る。<strong>ベクタ形式</strong>は座標と線の情報。ロゴやピクトグラム向きでデータ量も少ない。</li>
+        <li>データ量＝横の画素数 × 縦の画素数 × 1画素あたりのビット数。等しい条件から逆算できる。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2><span class="no">活用</span>授業・探究での使い方</h2>
+    <div class="use-note">
+      <h3>授業で</h3>
+      <ul>
+        <li>STEP 1 で加法混色と減法混色を並べて見せ、なぜディスプレイと絵の具で違うのかを説明する。</li>
+        <li>STEP 2 で「FF0000」「00FFFF」を入れ、本文の問3を全員で確かめる。</li>
+        <li>STEP 4 でラスタとベクタを拡大し、ジャギーが出る形式・出ない形式を体験させる。</li>
+      </ul>
+      <h3 style="margin-top:12px">探究で</h3>
+      <ul>
+        <li>自分の学校のスクールカラーをカラーコードで表し、RGBの値がどれくらいかを調べる。</li>
+        <li>同じ絵をラスタ形式とベクタ形式で作り、ファイルサイズと拡大時の見え方を比べる。</li>
+        <li>色覚に配慮した配色（カラーユニバーサルデザイン）をRGBの値の観点から考える。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  情報Ⅰ 共通テスト対策問題集（技術評論社）連動Webアプリ　/　Created by Dit-Lab.(Daiki ITO)　/　Supported by Tomoaki ATSUMI
+</footer>
+
+<script src="js/tools.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/terms.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
