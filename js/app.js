@@ -58,7 +58,7 @@
   let q3Ans = {};
   function drawQ3() {
     $('q3Box').innerHTML = Q3.map((q, i) =>
-      '<div' + (i ? ' style="margin-top:16px"' : '') + '><p class="qhead" style="margin:0 0 8px">【' + q.k + '】　' + q.q + '</p>' +
+      '<div' + (i ? ' style="margin-top:16px"' : '') + '><p class="pq">【' + q.k + '】　' + q.q + '</p>' +
       '<div class="choice4" data-i="' + i + '">' + Q3CH.map((c, j) =>
         '<button class="btn" data-i="' + i + '" data-c="' + c + '" style="text-align:center">' + '⓪①②③④⑤'[j] + '　' + c + '</button>').join('') +
       '</div><div class="note" id="qfb' + i + '" hidden></div></div>').join('');
