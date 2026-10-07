@@ -212,5 +212,18 @@
     drawColor(); drawHex(); drawQ3(); drawPoster(); drawZoom(); drawEq(); drawJudge();
     window.Terms.attach();
   }
+  if (window.Predict) Predict.make('pdC', {
+    q: '光の三原色 R・G・B に<strong>それぞれ8ビットずつ</strong>割り当てると、何色を表せるでしょう？',
+    type: 'pick',
+    ch: ['768色', '約6万5千色', '約1678万色', '約43億色'],
+    answer: function () { return 2; },
+    show: function () {
+      return '各色が <span class="mono">2<sup>8</sup> ＝ 256段階</span>。組み合わせなので ' +
+             '<span class="mono">256 × 256 × 256 ＝ 2<sup>24</sup> ＝ 16,777,216色</span>（約1678万色）です。';
+    },
+    why: '「256 × 3 ＝ 768色」と答えたくなりますが、R・G・Bは<strong>足すのではなく組み合わせる</strong>ので<strong>かけ算</strong>です。' +
+         'これが「フルカラー」「24ビットカラー」と呼ばれる理由で、人の目が見分けられる色数をほぼ覆っています。'
+  });
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
